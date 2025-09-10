@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アイコンプロンプトジェネレーター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .animate-highlight {
+            animation: highlight 1s ease;
+        }
+        @keyframes highlight {
+            0% { background-color: #f0f9ff; }
+            100% { background-color: transparent; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-8">
+        
+        <!-- ヘッダー -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">アイコンプロンプトジェネレーター</h1>
+            <p class="text-gray-500 mt-2">簡単な選択で、画像生成AI用のアイコンプロンプトを作成します。</p>
+        </div>
+
+        <!-- 入力フォーム -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">1. アイコンの主題</label>
+                <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="例: コーヒーカップ, 本, 猫">
+            </div>
+            <div>
+                <label for="style" class="block text-sm font-medium text-gray-700 mb-2">2. デザインのスタイル</label>
+                <select id="style" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <option value="minimalist">ミニマリスト</option>
+                    <option value="flat design">フラットデザイン</option>
+                    <option value="line art">線画</option>
+                    <option value="modern">モダン</option>
+                    <option value="cute">かわいい</option>
+                    <option value="3d render">3Dレンダー</option>
+                    <option value="pixel art">ピクセルアート</option>
+                    <option value="origami">折り紙風</option>
+                    <option value="watercolor">水彩画風</option>
+                    <option value="sticker">ステッカー風</option>
+                    <option value="glassmorphism">グラスモーフィズム</option>
+                </select>
+            </div>
+            <div>
+                <label for="mainColor" class="block text-sm font-medium text-gray-700 mb-2">3. メインカラー</label>
+                <input type="color" id="mainColor" value="#3b82f6" class="w-full h-10 border border-gray-300 rounded-lg cursor-pointer">
+            </div>
+            <div>
+                <label for="circleColor" class="block text-sm font-medium text-gray-700 mb-2">4. 円の色</label>
+                <input type="color" id="circleColor" value="#000000" class="w-full h-10 border border-gray-300 rounded-lg cursor-pointer">
+            </div>
+            <div class="md:col-span-2">
+                <label for="lineWeight" class="block text-sm font-medium text-gray-700 mb-2">5. 線の太さ</label>
+                <select id="lineWeight" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <option value="thin">細い (thin)</option>
+                    <option value="normal">普通 (normal)</option>
+                    <option value="thick">太い (thick)</option>
+                    <option value="bold">極太 (bold)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 生成ボタン -->
+        <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            プロンプトを生成する
+        </button>
+
+        <!-- 結果表示エリア -->
+        <div id="result" class="hidden space-y-6">
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-800">完成したプロンプト (英語推奨)</h3>
+                    <button class="copy-btn bg-gray-200 text-gray-700 text-sm font-medium py-1 px-3 rounded-md hover:bg-gray-300 transition" data-target="english-prompt">コピー</button>
+                </div>
+                <textarea id="english-prompt" readonly class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"></textarea>
+            </div>
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-800">完成したプロンプト (日本語)</h3>
+                     <button class="copy-btn bg-gray-200 text-gray-700 text-sm font-medium py-1 px-3 rounded-md hover:bg-gray-300 transition" data-target="japanese-prompt">コピー</button>
+                </div>
+                <textarea id="japanese-prompt" readonly class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"></textarea>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const resultDiv = document.getElementById('result');
+        const copyBtns = document.querySelectorAll('.copy-btn');
+
+        generateBtn.addEventListener('click', () => {
+            const subject = document.getElementById('subject').value || 'item';
+            const style = document.getElementById('style').value;
+            const mainColorHex = document.getElementById('mainColor').value;
+            const circleColorHex = document.getElementById('circleColor').value;
+            const lineWeight = document.getElementById('lineWeight').value;
+
+            // 英語プロンプトの生成 (カラーコードを直接使用)
+            const englishPrompt = `Icon of a ${subject}, ${style}, ${mainColorHex} and white color scheme. Enclosed in a ${circleColorHex} circle with a ${lineWeight} line. Vector art, white background.`;
+            document.getElementById('english-prompt').value = englishPrompt;
+            
+            // 日本語プロンプトの生成 (カラーコードを直接使用)
+            const japanesePrompt = `${subject}のアイコン、${style}、${mainColorHex}と白の配色。${lineWeight}の線の${circleColorHex}の円で囲まれている。ベクターアート、白背景。`;
+            document.getElementById('japanese-prompt').value = japanesePrompt;
+
+            if (resultDiv.classList.contains('hidden')) {
+                resultDiv.classList.remove('hidden');
+            }
+            resultDiv.classList.add('animate-highlight');
+            setTimeout(() => resultDiv.classList.remove('animate-highlight'), 1000);
+        });
+
+        copyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.target;
+                const textarea = document.getElementById(targetId);
+                
+                textarea.select();
+                // execCommandは古いですが、iframe環境での互換性を考慮して使用します
+                document.execCommand('copy');
+                
+                const originalText = btn.textContent;
+                btn.textContent = 'コピーしました!';
+                btn.classList.add('bg-green-200');
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-green-200');
+                }, 2000);
+            });
+        });
+    </script>
+
+</body>
+</html>
+
